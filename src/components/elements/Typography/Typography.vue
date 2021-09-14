@@ -26,7 +26,7 @@ export default({
     color: {
       type: String,
       required: false,
-      default: 'primary-00',
+      default: 'black',
     },
     align: {
       type: String,
