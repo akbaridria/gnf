@@ -1,0 +1,17 @@
+@mixin color-list($map) {
+  @each $color-name, $color-selected in $map {
+    @if not map-has-key($map, $color-name) {
+      &--#{$color-name} {
+        color: #000;
+      }
+    } @else {
+      &--#{$color-name} {
+        color: $color-selected;
+        a:-webkit-any-link {
+          color: $color-selected;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+@mixin background-list($map) {
+  @each $color-name, $color-selected in $map {
+    @if not map-has-key($map, $color-name) {
+      &--#{$color-name} {
+        background-color: #fff;
+      }
+    } @else {
+      &--#{$color-name} {
+        background-color: $color-selected;
+      }
+    }
+  }
+}

@@ -1,0 +1,132 @@
+$aligns: (
+  'left': left,
+  'right': right,
+  'center': center,
+  'justify': justify,
+);
+
+$fontNames: (
+  'h1': (
+    64px,
+    75px,
+    700,
+    -0.02em,
+  ),
+  'h2': (
+    40px,
+    47px,
+    700,
+    -0.02em,
+  ),
+  'h3': (
+    32px,
+    38px,
+    700,
+    -0.02em,
+  ),
+  'h4': (
+    24px,
+    28.15px,
+    700,
+    -0.02em,
+  ),
+  'title': (
+    24px,
+    28px,
+    700,
+    -0.02em,
+  ),
+  'subtitle': (
+    24px,
+    28px,
+    500,
+  ),
+  'subtitle--small': (
+    20px,
+    23px,
+    500,
+  ),
+  'large-text': (
+    16px,
+    160%,
+    500,
+  ),
+  'large-text--bold': (
+    16px,
+    160%,
+    700,
+  ),
+  'body-copy': (
+    16px,
+    140%,
+    500,
+  ),
+  'body-copy--bold': (
+    16px,
+    18px,
+    700,
+  ),
+  'medium-text': (
+    14px,
+    140%,
+    500,
+  ),
+  'medium-text--high': (
+    14px,
+    160%,
+    500,
+  ),
+  'medium-text--thin': (
+    14px,
+    160%,
+    300,
+  ),
+  'medium-text--bold': (
+    14px,
+    140%,
+    700,
+  ),
+  'small-text--medium': (
+    12px,
+    140%,
+    500,
+  ),
+  'small-text--bold': (
+    12px,
+    140%,
+    700,
+  ),
+  'extra-small-text--medium': (
+    10px,
+    14px,
+    500,
+  ),
+  'extra-small-text': (
+    10px,
+    12px,
+    400,
+  ),
+  'pre-title': (
+    14px,
+    16px,
+    700,
+    0.03em,
+  ),
+  'small-text--button': (
+    12px,
+    14px,
+    600,
+  ),
+  'medium-text--button': (
+    14px,
+    160%,
+    600,
+    0.03em,
+  ),
+  'large-text--button': (
+    16px,
+    19px,
+    600,
+    0.03em,
+  ),
+);

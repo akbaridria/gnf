@@ -1,0 +1,89 @@
+@import '../../generic/_colors.scss';
+@import '../../tools/_color.scss';
+@import './_variables.scss';
+
+@mixin align-list($map) {
+  @each $align-name, $align-selected in $map {
+    @if not map-has-key($map, $align-name) {
+      &--#{$align-name} {
+        text-align: left;
+      }
+    } @else {
+      &--#{$align-name} {
+        text-align: $align-selected;
+      }
+    }
+  }
+}
+
+// config global typography
+@mixin typography(
+  $name,
+  $size: null,
+  $lineHeight: null,
+  $weight: null,
+  $spacing: null
+) {
+  &--#{$name} {
+    @if $size != null {
+      font-size: $size;
+    }
+    @if $lineHeight != null {
+      line-height: $lineHeight;
+    }
+    @if $weight != null {
+      font-weight: $weight;
+    }
+    @if $spacing != null {
+      letter-spacing: $spacing;
+    }
+  }
+}
+
+.typography {
+  font-style: normal;
+  text-overflow: ellipsis;
+  @each $font-name, $property in $fontNames {
+    @if map-has-key($fontNames, $font-name) {
+      @if length($property) == 4 {
+        @include typography(
+          $font-name,
+          //font-size
+          nth($property, 1),
+          //line-height
+          nth($property, 2),
+          // font-weight
+          nth($property, 3),
+          // letter-spacing
+          nth($property, 4)
+        );
+      } @else {
+        @include typography(
+          $font-name,
+          //font-size
+          nth($property, 1),
+          //line-height
+          nth($property, 2),
+          // font-weight
+          nth($property, 3)
+        );
+      }
+    }
+  }
+}
+
+.typography-color {
+  @include color-list($colors);
+}
+.typography-align {
+  @include align-list($aligns);
+}
+
+a {
+  color: #2a80f2;
+  text-decoration: none;
+}
+
+.typography-pointer {
+  cursor: pointer;
+}
