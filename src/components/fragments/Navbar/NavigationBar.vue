@@ -2,14 +2,15 @@
   <div :class="`nav`">
     <div :class="`left-menu`">
       <div><Logo /></div>
-      <div :class="`list-menu`">
+      
+    </div>
+    <div :class="`list-menu`">
         <router-link v-for="(menu, index) in listMenu" :key="index" :to="`${menu.to}`">
         {{ menu.name }}
         </router-link>
         <!-- <router-link to="/about">Farms</router-link>
         <router-link to="/about">Pools</router-link> -->
       </div>
-    </div>
     <div :class="`left-menu`">
       <div>
           <BaseButton :text="`conect to metamask`" />
