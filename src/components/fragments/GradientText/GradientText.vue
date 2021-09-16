@@ -1,12 +1,19 @@
 <template>
   <div>
-    <h1 :class="`logo`">TraPo</h1>
+    <h4 :class="`logo`">{{ text }}</h4>
   </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "Logo",
+  name: "GradientText",
+  props: {
+      text: {
+          type: String,
+          required:false,
+          default: 'Default'
+      }
+  }
 };
 </script>
 

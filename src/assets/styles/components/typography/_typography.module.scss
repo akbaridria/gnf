@@ -78,7 +78,12 @@
 .typography-align {
   @include align-list($aligns);
 }
-
+.typography--truncated{
+  width:200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 a {
   color: #2a80f2;
   text-decoration: none;

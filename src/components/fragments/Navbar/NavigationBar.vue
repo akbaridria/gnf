@@ -36,19 +36,15 @@ export default {
       listMenu: [
           {
               to: '/',
-              name: 'Dashboard'
+              name: 'Marketplace'
           },
           {
-              to: '/swaps',
-              name: 'Swaps'
+              to: '/stats',
+              name: 'Stats'
           },
           {
-              to: '/farms',
-              name: 'Farms'
-          },
-          {
-              to: '/pools',
-              name: 'Pools'
+              to: '/create',
+              name: 'Create'
           }
       ]
     };
@@ -68,6 +64,7 @@ export default {
   padding: 15px 15px;
 }
 a {
+    text-decoration: none;
     color: $gray-8 ;
     &:hover {
         color: $white;
