@@ -24,6 +24,7 @@ export default {
 .button {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0px 15px;
   background-color: $gray-22;
   cursor: pointer;

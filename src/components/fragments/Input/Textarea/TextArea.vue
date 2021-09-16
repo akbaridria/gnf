@@ -1,26 +1,34 @@
 <template>
-  <div>
-    <input :class="`input-style`" type="text" :placeholder="placeholder" />
-  </div>
+  <textarea
+    :placeholder="placeholder"
+    v-model="valueArea"
+    :class="`text-area-form`"
+  >
+  </textarea>
 </template>
 
 <script lang="ts">
 export default {
-  name: "InputSearch",
+  name: "TextArea",
   props: {
-    placeholder : {
+    placeholder: {
       type: String,
-      required:false,
-      default: 'Input Value'
-    }
-  }
+      required: false,
+      default: "Describe your Nft",
+    },
+  },
+  data: function () {
+    return {
+      valueArea: "",
+    };
+  },
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/styles/abstract/_variables.scss";
-.input-style {
-  width: 250px;
+.text-area-form {
+  min-width: 300px;
   color: white;
   background-color: $gray-22;
   padding: 8px 8px;
@@ -28,7 +36,7 @@ export default {
   border-image: $gradient-1;
   border-image-slice: 1;
   &:focus {
-      outline: none;
+    outline: none;
   }
 }
 </style>

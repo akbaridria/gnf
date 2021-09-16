@@ -26,7 +26,7 @@ export default {
 @import '@/assets/styles/main.scss';
 @import '@/assets/styles/abstract/_variables.scss';
 
-input, body {
+input, textarea, body {
   font-family: "Poppins", sans-serif;
   background-color: $gray-24;
 }
