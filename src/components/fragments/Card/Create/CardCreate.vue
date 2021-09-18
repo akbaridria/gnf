@@ -80,7 +80,7 @@ export default {
       showDif: false,
       imageShow: false,
       imageData: '',
-      filename: ''
+      fileType: ''
     };
   },
   watch: {
@@ -121,6 +121,7 @@ export default {
       console.log(e)
       const file = e.target.files[0];
       this.$data.imageData = URL.createObjectURL(file);
+      this.$data.fileType = e.target.files[0].type
       this.$data.imageShow = true
     },
     getInputCollection(value) {
