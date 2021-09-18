@@ -17,14 +17,14 @@
 import DefaultLayout from "@/components/layouts/DefaultLayout.vue";
 import Card from "@/components/elements/Card/Card.vue";
 import CardFromSearch from "@/components/fragments/Card/Marketplace/CardFormSearch.vue";
-import CardNfts from "@/components/fragments/Card/Marketplace/CardNfts.vue"
+import CardNfts from "@/components/fragments/Card/Marketplace/CardNfts.vue";
 export default {
   name: 'Home',
   components : {
     DefaultLayout,
     Card,
     CardFromSearch,
-    CardNfts
+    CardNfts,
   }
 }
 </script>

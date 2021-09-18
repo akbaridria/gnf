@@ -5,7 +5,6 @@
       color ? $style[`typography-color--${color}`] : null,
       align ? $style[`typography-align--${align}`] : null,
       pointer ? $style['typography-pointer'] : null,
-      truncate ? $style[`typography--truncated`] : null
     ]"
     @mouseenter="$emit('mouseenter', $event)"
     @mouseleave="$emit('mouseleave', $event)"
@@ -39,11 +38,6 @@ export default({
       required: false,
       default: false,
     },
-    truncate: {
-      type: Boolean,
-      required:false,
-      default: true
-    }
   },
 })
 </script>

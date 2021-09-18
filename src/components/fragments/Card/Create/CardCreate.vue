@@ -12,15 +12,19 @@
               <InputSearch placeholder="Name Of your Collection" />
               <GradientButton text="Create" />
             </div>
-            <div style="width: 150px; margin: 0 auto">
-              <HelpCircleOutline />
+            <div :class="`wrapper-info-create-collection`">
+
+                <HelpCircleOutline style="width: 24px; margin-right:8px;" />
+
+              <Typography
+                variant="small-text-medium"
+                color="white"
+                :truncate="false"
+              >
+                You dont have any collection!
+              </Typography>
+             
             </div>
-            <Typography variant="small-text-medium" color="white" :truncate="false">
-              You dont have any collection!
-            </Typography>
-            <Typography variant="extra-small-text--medium" color="white" :truncate="false">
-              Before you can mint NFt as many as you can, you have to create your collection first.
-            </Typography>
           </div>
         </template>
       </Card>
@@ -55,7 +59,7 @@ import TextArea from "@/components/fragments/Input/Textarea/TextArea.vue";
 import BaseButton from "@/components/elements/Button/BaseButton.vue";
 import ImageOutline from "@/assets/Icons/ImageOutline.vue";
 import HelpCircleOutline from "@/assets/Icons/HelpCircleOutline.vue";
-import Typography from "@/components/elements/Typography/Typography.vue"
+import Typography from "@/components/elements/Typography/Typography.vue";
 export default {
   name: "CardCreate",
   components: {
@@ -67,7 +71,7 @@ export default {
     BaseButton,
     ImageOutline,
     HelpCircleOutline,
-    Typography
+    Typography,
   },
 };
 </script>
@@ -96,6 +100,12 @@ export default {
   & > * {
     padding-bottom: 20px;
   }
+}
+.wrapper-info-create-collection{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width:100%;
 }
 .form-create-nft {
   display: flex;
