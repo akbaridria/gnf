@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "ES6",
     "module": "ESNext",
     "moduleResolution": "Node",
     "lib": [
-      "ESNext",
-      "ESNext.AsyncIterable",
-      "DOM"
+      "DOM",
+      "ES6",
+      "DOM.Iterable",
+      "ScriptHost",
+      "ES2016.Array.Include"
     ],
     "forceConsistentCasingInFileNames": false,
     "esModuleInterop": true,

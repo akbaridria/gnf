@@ -1,6 +1,6 @@
 <template>
   <div>
-    <input :class="`input-style`" type="text" :placeholder="placeholder" />
+    <input :class="`input-style`" type="text" :placeholder="placeholder" @input="$emit('inputValue', $event.target.value)"/>
   </div>
 </template>
 

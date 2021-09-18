@@ -1,8 +1,15 @@
 <template>
-  <div class="alert-container">
-    <div>
-      <CheckCircle v-if="variant === 'success'" />
-      <HelpCircleOutline v-else />
+  <div
+    :class="{
+      'alert-container': variant === 'success',
+      'alert-container-danger': variant === 'danger',
+    }"
+  >
+    <div style="width: 32px" v-if="variant === 'success'">
+      <CheckCircle />
+    </div>
+    <div style="width: 32px" v-if="variant === 'danger'">
+      <HelpCircleOutline />
     </div>
     <div>
       <Typography variant="medium-text--bold" color="white">
@@ -67,12 +74,34 @@ export default {
     margin: 0px 5px;
   }
 }
+
+.alert-container-danger {
+  animation: fadeOut 2s forwards;
+  animation-delay: 4s;
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  width: 300px;
+  min-height: 60px;
+  background-color: rgba(232, 33, 43, 0.16);
+  backdrop-filter: blur(40px);
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px 12px;
+  top: 20%;
+  right: 1%;
+  & > * {
+    margin: 0px 5px;
+  }
+}
+
 @keyframes fadeOut {
   from {
     opacity: 1;
   }
   to {
     opacity: 0;
+    z-index: -1;
   }
 }
 </style>
