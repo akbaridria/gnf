@@ -1,8 +1,8 @@
 <template>
   <textarea
     :placeholder="placeholder"
-    v-model="valueArea"
     :class="`text-area-form`"
+    @input="$emit('inputTextArea', $event.target.value)"
   >
   </textarea>
 </template>
@@ -16,11 +16,6 @@ export default {
       required: false,
       default: "Describe your Nft",
     },
-  },
-  data: function () {
-    return {
-      valueArea: "",
-    };
   },
 };
 </script>
