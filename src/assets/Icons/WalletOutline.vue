@@ -20,7 +20,7 @@
       stroke-linejoin="round"
       stroke-width="32"
     />
-    <path d="M368 320a32 32 0 1132-32 32 32 0 01-32 32z" />
+    <path d="M368 320a32 32 0 1132-32 32 32 0 01-32 32z" fill="white" />
   </svg>
 </template>
 

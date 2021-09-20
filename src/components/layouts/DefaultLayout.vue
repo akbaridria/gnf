@@ -19,5 +19,6 @@ export default {
     width: 1200px;
     padding: 20px 20px;
     background-color: $gray-24;
+    justify-content: center;
 }
 </style>

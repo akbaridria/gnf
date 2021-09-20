@@ -36,9 +36,9 @@
             />
             <div
               v-if="imageShow"
-              style="width: 150px; margin: 0 auto; padding: 20px 0px"
+              style="max-width: 150px; margin: 0 auto; padding: 20px 0px"
             >
-              <img :src="imageData" />
+              <img :src="imageData" style="width: 150px;" />
             </div>
             <BaseButton text="Upload File" @click="clickImage" />
             <input
@@ -75,7 +75,7 @@ import GradientButton from "@/components/fragments/Button/GradientButton.vue";
 import TextArea from "@/components/fragments/Input/Textarea/TextArea.vue";
 import BaseButton from "@/components/elements/Button/BaseButton.vue";
 import ImageOutline from "@/assets/Icons/ImageOutline.vue";
-import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue"
+import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
 export default {
   name: "CardCreate",
   components: {
@@ -86,7 +86,7 @@ export default {
     TextArea,
     BaseButton,
     ImageOutline,
-    OverlayLoading
+    OverlayLoading,
   },
   props: {
     isCollection: {
@@ -105,8 +105,8 @@ export default {
       fileType: "",
       nftName: "",
       nftDescription: "",
-      fileImage: '',
-      loading: false
+      fileImage: "",
+      loading: false,
     };
   },
   watch: {
@@ -182,52 +182,71 @@ export default {
         .catch((error) => console.log(error));
       console.log(this.$data.collectionId);
     },
-    async storeImageToNftStorage(){
+    async storeImageToNftStorage() {
       const metadata = await client.store({
         name: this.$data.nftName,
-        description:this.$data.nftDescription,
+        description: this.$data.nftDescription,
         image: this.$data.fileImage,
-      })
-      return metadata.url
+      });
+      return metadata.url;
     },
     async processMintNft() {
-      this.$data.loading = true
-      await fetchCheckUser({
-        wallet_address: this.$store.state.user.walletAddress,
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            return Promise.reject("something went wrong!");
-          }
+      this.$data.loading = true;
+      if (
+        this.$data.nftName === "" ||
+        this.$data.fileImage === "" ||
+        this.$data.nftDescription === ""
+      ) {
+        this.$emit("alertShow", {
+          variant: "danger",
+          textAlert: "Error",
+          alertDescription: "Please Filled All The Required Filled.",
+        });
+      } else {
+        await fetchCheckUser({
+          wallet_address: this.$store.state.user.walletAddress,
         })
-        .then( async(data) => {
-          const collectionId = data[0].collection_id
-          const urlImage = await this.storeImageToNftStorage()
-          const mintNft = await this.mintNftUnique(collectionId, urlImage)
-          if(mintNft){
-            this.$emit("alertShow", {
-              variant: "success",
-              textAlert: "Success",
-              alertDescription: "Transaction is completed!",
-            });
-          }
-        })
-        .catch((error) => console.log(error));
-        this.$data.loading = false
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              return Promise.reject("something went wrong!");
+            }
+          })
+          .then(async (data) => {
+            const collectionId = data[0].collection_id;
+            const urlImage = await this.storeImageToNftStorage();
+            const mintNft = await this.mintNftUnique(collectionId, urlImage);
+            if (mintNft) {
+              this.$emit("alertShow", {
+                variant: "success",
+                textAlert: "Success",
+                alertDescription: "Transaction is completed!",
+              });
+            }
+          })
+          .catch((error) => console.log(error));
+      }
+
+      this.$data.loading = false;
     },
-    async mintNftUnique(collectionId, urlImage){
+    async mintNftUnique(collectionId, urlImage) {
       const { api } = await UseCennznet("app_name", { network: "nikau" });
-      
-      const data = await api.tx.nft.mintUnique(collectionId, this.$store.state.user.walletAddress, [{url: urlImage}], null, null)
+
+      const data = await api.tx.nft.mintUnique(
+        collectionId,
+        this.$store.state.user.walletAddress,
+        [{ url: urlImage }],
+        null,
+        null
+      );
       const allInjected = await web3Enable("app name");
       console.log(allInjected);
       const injector = await web3FromSource("cennznet-extension");
       const signer = injector.signer;
-      await data.signAndSend(this.$store.state.user.walletAddress,{ signer })
-      return true
-    }
+      await data.signAndSend(this.$store.state.user.walletAddress, { signer });
+      return true;
+    },
   },
 };
 </script>

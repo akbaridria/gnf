@@ -10,9 +10,9 @@
       <Typography variant="extra-small-text" color="gray-8">
         {{ walletAddress }}
       </Typography>
-    </div>
-    <div>
-      <BaseButton :text="`${balance} CPAY`" />
+      <Typography variant="extra-small-text" color="gray-8">
+        {{ balance + ' CPAY' }}
+      </Typography>
     </div>
   </div>
 </template>
@@ -20,13 +20,11 @@
 <script lang="ts">
 import WalletOutline from "@/assets/Icons/WalletOutline.vue";
 import Typography from "@/components/elements/Typography/Typography.vue";
-import BaseButton from "@/components/elements/Button/BaseButton.vue";
 export default {
   name: "BadgeAccount",
   components: {
     WalletOutline,
     Typography,
-    BaseButton,
   },
   props: {
     accountName: {

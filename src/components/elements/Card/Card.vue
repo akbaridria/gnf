@@ -14,7 +14,6 @@ export default {
         default: false
       }
     }
-
 }
 </script>
 
@@ -26,5 +25,6 @@ export default {
   background-color: $gray-23;
   padding: 20px 20px;
   border-radius: 15px;
+  justify-content: center;
 }
 </style>

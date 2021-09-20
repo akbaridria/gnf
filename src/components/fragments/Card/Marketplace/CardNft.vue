@@ -1,16 +1,15 @@
 <template >
-  <div :class="`card-nft-default`" @click="$router.push('/assets/tokenId')">
+  <div :class="`card-nft-default`" :style="`width: ${widthCard}px`" @click="$router.push('/assets/tokenId')">
     <div>
-      <Typography variant="extra-small-text" color="blue-5"> Owner </Typography>
+      <Typography variant="extra-small-text" color="blue-5"> #{{dataNft.collectionId}} </Typography>
       <Typography variant="extra-small-text--medium" color="white">
-        Skeleton in your mind #3230 Skeleton in your mind #3230 Skeleton in your
-        mind #3230 Skeleton in your mind #3230
+        {{ dataNft.name }}
       </Typography>
     </div>
     <div style="margin-bottom: 5px">
       <img
         :class="`image-wrapper`"
-        src="https://lh3.googleusercontent.com/x9W-B5-DYFpH0qr7nhTIa4NwYEWfXOIa-9SvJw_kAg0msWKiH8zPIb0lqT7A8Fk0x5TGvOPLckT366vE9M8yuJK0dfvrcT2yN7CEoyE=w600"
+        :src="dataNft.image"
       />
     </div>
     <Typography variant="extra-small-text" color="blue-5"> Price </Typography>
@@ -27,6 +26,18 @@ export default {
   components: {
     Typography,
   },
+  props: {
+    widthCard : {
+      type: Number,
+      required:false,
+      default: 250
+    },
+    dataNft: {
+      type: Object,
+      required:false,
+      default: () => {}
+    }
+  }
 };
 </script>
 
@@ -34,7 +45,6 @@ export default {
 @import "@/assets/styles/abstract/_variables.scss";
 
 .card-nft-default {
-  width: 250px;
   display: flex;
   flex-direction: column;
   border: 1px solid transparent;
@@ -49,5 +59,6 @@ export default {
 .image-wrapper {
   width: 100%;
   height: 100%;
+  padding: 12px 0px;
 }
 </style>

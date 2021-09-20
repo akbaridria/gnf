@@ -30,7 +30,7 @@
   <router-view />
 </template>
 
-<script lang="ts">
+<script>
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 // import {web3FromSource, web3Enable} from "@polkadot/extension-dapp"
 import Logo from "@/components/fragments/Logo/Logo.vue";
@@ -51,12 +51,12 @@ export default {
           name: "Marketplace",
         },
         {
-          to: "/stats",
-          name: "Stats",
-        },
-        {
           to: "/create",
           name: "Create",
+        },
+        {
+          to: "/profile",
+          name: "Profile",
         },
       ],
       isConnected: false,
@@ -79,26 +79,9 @@ export default {
         let assetId = 16001;
         this.$store.commit('updateConnect', {
           isConnected: isExtensionInstalled,
-          walletAddress: accounts[0].address
+          walletAddress: accounts[0].address,
+          walletName: accounts[0].meta.name
         })
-        console.log(this.$store.state.user)
-        // let listingId = await api.query.nft.nextListingId();
-        // console.log('ini listing', listingId.toHuman())
-        //  listingId = await api.query.nft.nextListingId();
-        // console.log('ini listing', listingId.toHuman())
-        // let listing = await api.query.nft.listings(800)
-        // console.log(listing.toHuman())
-        // console.log(accounts)
-        // let coll = api.query.nft.collectionName(63)
-        // console.log((await coll).toHuman())
-        // const tokenInfos = await api.derive.nft.tokenInfoForCollection(63);
-        // console.log(tokenInfos)
-        // const sell = await api.tx.nft.sell([63,1,0], null, 16001, 16001, null)
-        // const allInjected = await web3Enable('app name');
-        // console.log(allInjected)
-        // const injector = await web3FromSource('cennznet-extension')
-        // const signer = injector.signer;
-        // sell.signAndSend(this.$data.accountAddress, {signer}).catch((error) => console.log(error))
         await api.query.genericAsset.freeBalance(
           assetId,
           accounts[0].address,
@@ -110,6 +93,7 @@ export default {
         this.$emit('showAlert', { variant: 'danger', textAlert: 'Error', alertDescription: 'Install Cennz extention or Allowed this website to connect'})
       }
     },
+    
   },
 };
 </script>
