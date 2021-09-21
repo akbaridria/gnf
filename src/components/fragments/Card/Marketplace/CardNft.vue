@@ -1,5 +1,5 @@
 <template >
-  <div :class="`card-nft-default`" :style="`width: ${widthCard}px`" @click="$router.push('/assets/tokenId')">
+  <div :class="`card-nft-default`" :style="`width: ${widthCard}px`" @click="$router.push({name: 'Assets', params: dataNft})">
     <div>
       <Typography variant="extra-small-text" color="blue-5"> #{{dataNft.collectionId}} </Typography>
       <Typography variant="extra-small-text--medium" color="white">
@@ -14,7 +14,7 @@
     </div>
     <Typography variant="extra-small-text" color="blue-5"> Price </Typography>
     <Typography variant="extra-small-text--medium" color="white">
-      345.34 CPAY
+      {{ dataNft.price ? dataNft.price : 0 }} CPAY
     </Typography>
   </div>
 </template>

@@ -27,3 +27,31 @@ export async function fetchAddUser(payload){
     })
     return response
 }
+
+export async function fetchAddHistory(payload){
+  const url = `${baseUrl}user/history/add`
+  const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-cache', 
+      credentials: 'same-origin', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    return response
+}
+
+export async function fetchGetUserHistory(payload){
+  const url = `${baseUrl}user/history/get`
+  const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-cache', 
+      credentials: 'same-origin', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    return response
+}

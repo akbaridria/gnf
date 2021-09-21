@@ -49,7 +49,7 @@ import CollectionNft from "@/components/fragments/Card/Profile/CollectionNft.vue
 import HistoryUser from "@/components/fragments/Card/Profile/HistoryUser.vue";
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import { fetchCheckUser } from "@/utils/utils.js";
-import { toGatewayURL } from "nft.storage";
+// import { toGatewayURL } from "nft.storage";
 export default {
   name: "Your Profile",
   components: {
@@ -69,7 +69,8 @@ export default {
       noCollectionId: false,
       dataNft: '',
       collectionId: 0,
-      allNft: []
+      allNft: [],
+      seriesId: 0
     };
   },
   watch: {
@@ -77,17 +78,18 @@ export default {
       this.getAllNft();
     },
     async dataNft(newValue){
-      const response = await fetch(newValue);
+      const response = await fetch(newValue.data);
       const data = await response.json()
       const GATEWAY = new URL('https://dweb.link/')
       const dataImage = new URL(`/ipfs/${data.image.slice('ipfs://'.length)}`, GATEWAY)
       this.$data.allNft.push({
         collectionId: this.$data.collectionId,
+        seriesId: newValue.seriesId,
         name: data.name,
         description: data.description,
-        image: dataImage
+        image: dataImage,
+        serialNumber: newValue.serialNumber
       })
-      console.log(this.$data.allNft)
     }
   },
   computed: {
@@ -117,11 +119,15 @@ export default {
         );
         console.log('disini collect', collecNft.toHuman())
         collecNft.toHuman().forEach(async (element) => {
+          
         await api.query.nft.seriesAttributes(
             collectionId[0].collection_id,
             element.seriesId
           ).then((data) => {
-            this.$data.dataNft = toGatewayURL(data.toHuman()[0].Url)
+            const GATEWAY = new URL('https://dweb.link/')
+            this.$data.dataNft = {
+              data: new URL(`/ipfs/${data.toHuman()[0].Url.slice('ipfs://'.length)}`, GATEWAY),
+              seriesId: element.seriesId, serialNumber:element.serialNumber }
           })
         });
       } else {

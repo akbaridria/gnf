@@ -2,7 +2,7 @@
 <DefaultLayout>
   <template v-slot:default>
   <div class="asset-token-wrapper">
-    <TokenNft />
+    <TokenNft :dataNft="$route.params" />
   </div>
   </template>
 </DefaultLayout>
@@ -16,7 +16,7 @@ export default {
   components: {
     TokenNft,
     DefaultLayout
-  },
+  }
 };
 </script>
 

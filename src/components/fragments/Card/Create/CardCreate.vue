@@ -38,7 +38,7 @@
               v-if="imageShow"
               style="max-width: 150px; margin: 0 auto; padding: 20px 0px"
             >
-              <img :src="imageData" style="width: 150px;" />
+              <img :src="imageData" style="width: 150px" />
             </div>
             <BaseButton text="Upload File" @click="clickImage" />
             <input
@@ -64,7 +64,11 @@
 <script>
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import { web3FromSource, web3Enable } from "@polkadot/extension-dapp";
-import { fetchAddUser, fetchCheckUser } from "@/utils/utils.js";
+import {
+  fetchAddUser,
+  fetchCheckUser,
+  fetchAddHistory,
+} from "@/utils/utils.js";
 import { NFTStorage } from "nft.storage";
 const apiKey = process.env.VUE_APP_NFTSTORAGE;
 const client = new NFTStorage({ token: apiKey });
@@ -217,11 +221,24 @@ export default {
             const collectionId = data[0].collection_id;
             const urlImage = await this.storeImageToNftStorage();
             const mintNft = await this.mintNftUnique(collectionId, urlImage);
+            await fetchAddHistory({
+                wallet_address: this.$store.state.user.walletAddress,
+                event_name: 'Mint',
+                price: 0,
+                nft_name: this.$data.nftName
+              }).then((response) => {
+                if (response.ok) {
+                  return response.json();
+                } else {
+                  return Promise.reject("something went wrong!");
+                }
+              }).catch((err) => console.log(err))
             if (mintNft) {
+              
               this.$emit("alertShow", {
                 variant: "success",
                 textAlert: "Success",
-                alertDescription: "Transaction is completed!",
+                alertDescription: "Transaction is completed!, wait for 5-10 Minutes while data is being loaded!",
               });
             }
           })
@@ -244,7 +261,8 @@ export default {
       console.log(allInjected);
       const injector = await web3FromSource("cennznet-extension");
       const signer = injector.signer;
-      await data.signAndSend(this.$store.state.user.walletAddress, { signer });
+      const status = await data.signAndSend(this.$store.state.user.walletAddress, { signer });
+      console.log(status)
       return true;
     },
   },
