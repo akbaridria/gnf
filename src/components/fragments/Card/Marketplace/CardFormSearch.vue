@@ -3,13 +3,13 @@
     <template v-slot:default>
       <div :class="`header-market-wrapper`">
         <div>
-        <GradientText text="200,000 results" />
+        <GradientText :text="`${total} Results`" />
         </div>
-        <div :class="`wrap-search`">
+        <!-- <div :class="`wrap-search`">
             <Badge text="All" :active="badgeActive === 'All'" @clickBadge="badgeActive = 'All'" />
             <Badge text="On Sale" :active="badgeActive === 'On Sale'" @clickBadge="badgeActive = 'On Sale'" />
             <Badge text="On Auction" :active="badgeActive === 'On Auction'" @clickBadge="badgeActive = 'On Auction'"  />
-        </div>
+        </div> -->
       </div>
     </template>
   </Card>
@@ -18,13 +18,20 @@
 <script>
 import Card from "@/components/elements/Card/Card.vue";
 import GradientText from "@/components/fragments/GradientText/GradientText.vue";
-import Badge from "@/components/fragments/Badge/Badge.vue"
+// import Badge from "@/components/fragments/Badge/Badge.vue"
 export default {
   name: "CardFromSearch",
   components: {
     Card,
     GradientText,
-    Badge
+    // Badge
+  },
+  props: {
+    total: {
+      type: Number,
+      required: false,
+      default: 0
+    }
   },
   data: function(){
       return {
@@ -39,8 +46,6 @@ export default {
 .header-market-wrapper {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
   width:100%;
 }
 .wrap-search{

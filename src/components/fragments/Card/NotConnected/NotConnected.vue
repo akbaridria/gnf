@@ -2,7 +2,7 @@
   <div class="not-connected-wrapper">
       <Logo />
       <Typography variant="medium-text" color="white">
-          Please connect your wallet!
+         {{ text }}
       </Typography>
   </div>
 </template>
@@ -15,6 +15,13 @@ export default {
     components: {
         Logo,
         Typography
+    },
+    props: {
+        text: {
+            type: String,
+            required: false,
+            default: 'Please connect your wallet! 😉'
+        }
     }
 }
 </script>

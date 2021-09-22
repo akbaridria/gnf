@@ -1,6 +1,8 @@
 <template>
   <div style="margin: 0 auto">
+    <OverlayLoading v-if="loading" />
     <NotConnected v-if="!$store.state.user.isConnected" />
+    
     <DefaultLayout v-else>
       <template v-slot:default>
         <Card style="margin: 0 auto">
@@ -26,7 +28,10 @@
                 </Typography>
               </div>
               <div v-else>
-                <CollectionNft v-if="activeTab === 'Collection'" :listNft="allNft" />
+                <CollectionNft
+                  v-if="activeTab === 'Collection'"
+                  :listNft="allNft"
+                />
                 <HistoryUser v-if="activeTab === 'History'" />
               </div>
             </div>
@@ -49,6 +54,7 @@ import CollectionNft from "@/components/fragments/Card/Profile/CollectionNft.vue
 import HistoryUser from "@/components/fragments/Card/Profile/HistoryUser.vue";
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import { fetchCheckUser } from "@/utils/utils.js";
+import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
 // import { toGatewayURL } from "nft.storage";
 export default {
   name: "Your Profile",
@@ -61,36 +67,41 @@ export default {
     NotConnected,
     CollectionNft,
     HistoryUser,
+    OverlayLoading,
   },
   data: function () {
     return {
       listTab: ["Collection", "History"],
       activeTab: "Collection",
       noCollectionId: false,
-      dataNft: '',
+      dataNft: "",
       collectionId: 0,
       allNft: [],
-      seriesId: 0
+      seriesId: 0,
+      loading: false,
     };
   },
   watch: {
     "$store.state.user.isConnected"() {
       this.getAllNft();
     },
-    async dataNft(newValue){
+    async dataNft(newValue) {
       const response = await fetch(newValue.data);
-      const data = await response.json()
-      const GATEWAY = new URL('https://dweb.link/')
-      const dataImage = new URL(`/ipfs/${data.image.slice('ipfs://'.length)}`, GATEWAY)
+      const data = await response.json();
+      const GATEWAY = new URL("https://dweb.link/");
+      const dataImage = new URL(
+        `/ipfs/${data.image.slice("ipfs://".length)}`,
+        GATEWAY
+      );
       this.$data.allNft.push({
         collectionId: this.$data.collectionId,
         seriesId: newValue.seriesId,
         name: data.name,
         description: data.description,
         image: dataImage,
-        serialNumber: newValue.serialNumber
-      })
-    }
+        serialNumber: newValue.serialNumber,
+      });
+    },
   },
   computed: {
     walletName() {
@@ -107,32 +118,36 @@ export default {
   },
   methods: {
     async getAllNft() {
+      this.$data.loading = true;
       const { api } = await UseCennznet("app_name", { network: "nikau" });
       const collectionId = await this.checkCollectionId(
         this.$store.state.user.walletAddress
       );
-      if (typeof collectionId !== "undefined") {
-        this.$data.collectionId = collectionId[0].collection_id
+      if (typeof collectionId !== "undefined" && collectionId.length > 0) {
+        this.$data.collectionId = collectionId[0].collection_id;
         const collecNft = await api.rpc.nft.collectedTokens(
           collectionId[0].collection_id,
           this.$store.state.user.walletAddress
         );
-        console.log('disini collect', collecNft.toHuman())
         collecNft.toHuman().forEach(async (element) => {
-          
-        await api.query.nft.seriesAttributes(
-            collectionId[0].collection_id,
-            element.seriesId
-          ).then((data) => {
-            const GATEWAY = new URL('https://dweb.link/')
-            this.$data.dataNft = {
-              data: new URL(`/ipfs/${data.toHuman()[0].Url.slice('ipfs://'.length)}`, GATEWAY),
-              seriesId: element.seriesId, serialNumber:element.serialNumber }
-          })
+          await api.query.nft
+            .seriesAttributes(collectionId[0].collection_id, element.seriesId)
+            .then((data) => {
+              const GATEWAY = new URL("https://dweb.link/");
+              this.$data.dataNft = {
+                data: new URL(
+                  `/ipfs/${data.toHuman()[0].Url.slice("ipfs://".length)}`,
+                  GATEWAY
+                ),
+                seriesId: element.seriesId,
+                serialNumber: element.serialNumber,
+              };
+            });
         });
       } else {
         this.$data.noCollectionId = true;
       }
+      this.$data.loading = false;
     },
     async checkCollectionId(walletAddress) {
       return await fetchCheckUser({

@@ -30,17 +30,22 @@
               @inputValue="getNftName($event)"
             />
             <TextArea @inputTextArea="getTextAreaData($event)" />
-            <ImageOutline
-              v-if="!imageShow"
-              style="width: 150px; margin: 0 auto"
-            />
             <div
               v-if="imageShow"
               style="max-width: 150px; margin: 0 auto; padding: 20px 0px"
             >
               <img :src="imageData" style="width: 150px" />
             </div>
-            <BaseButton text="Upload File" @click="clickImage" />
+            <span
+              style="
+                color: white;
+                font-size: 12px;
+                padding: 24px 0px;
+                cursor: pointer;
+              "
+              @click="clickImage"
+              >Upload File</span
+            >
             <input
               type="file"
               id="inputFile"
@@ -77,8 +82,6 @@ import GradientText from "@/components/fragments/GradientText/GradientText.vue";
 import InputSearch from "@/components/fragments/Input/InputSearch/InputSearch.vue";
 import GradientButton from "@/components/fragments/Button/GradientButton.vue";
 import TextArea from "@/components/fragments/Input/Textarea/TextArea.vue";
-import BaseButton from "@/components/elements/Button/BaseButton.vue";
-import ImageOutline from "@/assets/Icons/ImageOutline.vue";
 import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
 export default {
   name: "CardCreate",
@@ -88,8 +91,6 @@ export default {
     InputSearch,
     GradientButton,
     TextArea,
-    BaseButton,
-    ImageOutline,
     OverlayLoading,
   },
   props: {
@@ -184,7 +185,20 @@ export default {
           }
         )
         .catch((error) => console.log(error));
-      console.log(this.$data.collectionId);
+      await fetchAddHistory({
+        wallet_address: this.$store.state.user.walletAddress,
+        event_name: "Create Collection",
+        price: 0,
+        nft_name: "-",
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .catch((err) => console.log(err));
     },
     async storeImageToNftStorage() {
       const metadata = await client.store({
@@ -222,23 +236,25 @@ export default {
             const urlImage = await this.storeImageToNftStorage();
             const mintNft = await this.mintNftUnique(collectionId, urlImage);
             await fetchAddHistory({
-                wallet_address: this.$store.state.user.walletAddress,
-                event_name: 'Mint',
-                price: 0,
-                nft_name: this.$data.nftName
-              }).then((response) => {
+              wallet_address: this.$store.state.user.walletAddress,
+              event_name: "Mint",
+              price: 0,
+              nft_name: this.$data.nftName,
+            })
+              .then((response) => {
                 if (response.ok) {
                   return response.json();
                 } else {
                   return Promise.reject("something went wrong!");
                 }
-              }).catch((err) => console.log(err))
+              })
+              .catch((err) => console.log(err));
             if (mintNft) {
-              
               this.$emit("alertShow", {
                 variant: "success",
-                textAlert: "Success",
-                alertDescription: "Transaction is completed!, wait for 5-10 Minutes while data is being loaded!",
+                textAlert: "Submitted",
+                alertDescription:
+                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
               });
             }
           })
@@ -261,8 +277,11 @@ export default {
       console.log(allInjected);
       const injector = await web3FromSource("cennznet-extension");
       const signer = injector.signer;
-      const status = await data.signAndSend(this.$store.state.user.walletAddress, { signer });
-      console.log(status)
+      const status = await data.signAndSend(
+        this.$store.state.user.walletAddress,
+        { signer }
+      );
+      console.log(status);
       return true;
     },
   },
@@ -310,7 +329,7 @@ export default {
 }
 .wrapper-form-collection {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   width: 100%;

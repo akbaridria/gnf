@@ -56,6 +56,7 @@ export default {
 <style lang="scss">
 @import "@/assets/styles/abstract/_variables.scss";
 .alert-container {
+  z-index: 10000;
   animation: fadeOut 2s forwards;
   animation-delay: 2s;
   display: flex;
@@ -76,6 +77,7 @@ export default {
 }
 
 .alert-container-danger {
+  z-index: 10000;
   animation: fadeOut 2s forwards;
   animation-delay: 4s;
   display: flex;

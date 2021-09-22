@@ -1,34 +1,40 @@
 <template>
   <div class="history-wrapper">
-    <table class="table-bordered">
-      <thead>
-        <tr>
-          <th>Date Time</th>
-          <th>Event Name</th>
-          <th>Nft Name</th>
-          <th>Price</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(index, item) in historyUser" :key="item">
-          <td>{{ new Date(index.timestamp).toLocaleDateString(undefined, options) }}</td>
-          <td>{{ index.event_name }}</td>
-          <td>{{ index.nft_name }}</td>
-          <td>{{ index.price }} CPAY</td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-for="(index, item) in historyUser" :key="item" class="history-item">
+      <div>
+        {{ new Date(index.timestamp).toLocaleDateString(undefined, options) }}
+      </div>
+      <div>
+        {{ index.event_name }}
+      </div>
+      <div>
+        {{ index.nft_name }}
+      </div>
+      <div>
+       {{ index.price }} CPAY
+      </div>
+    </div>
+    <NotConnected v-if="historyUser.length === 0" text="You dont have any transaction in trapo 😭" />
   </div>
 </template>
 
 <script>
 import { fetchGetUserHistory } from "@/utils/utils.js";
+import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.vue"
 export default {
   name: "HistoryUser",
+  components: {
+    NotConnected
+  },
   data: function () {
     return {
       historyUser: [],
-      options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+      options: {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      },
     };
   },
   mounted() {
@@ -48,7 +54,6 @@ export default {
           }
         })
         .then((data) => {
-          console.log(data);
           this.$data.historyUser = data;
         })
         .catch((error) => console.log(error));
@@ -58,69 +63,27 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/assets/styles/abstract/_variables.scss";
+.history-item {
+  display: grid;
+  grid-template-columns: 300px 200px 300px 150px;
+  background-color: $gray-22;
+  border-radius: 8px;
+  width: 100%;
+  color: white;
+  padding: 24px 18px;
+  margin: 6px 0px;
+  &:hover {
+    background-color: $gray-8;
+  }
+}
 .history-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 842px;
-  background-color: white;
+  width: 930px;
   margin-bottom: 24px;
 }
-th {
-  text-align: left;
-}
-.table {
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: 20px;
-}
-table > thead > tr > th,
-table > tbody > tr > th,
-table > tfoot > tr > th,
-table > thead > tr > td,
-table > tbody > tr > td,
-table > tfoot > tr > td {
-  padding: 8px;
-  line-height: 1.42857143;
-  vertical-align: top;
-  border-top: 1px solid #ddd;
-}
-table > thead > tr > th {
-  vertical-align: bottom;
-  border-bottom: 2px solid #ddd;
-}
-table > caption + thead > tr:first-child > th,
-table > colgroup + thead > tr:first-child > th,
-table > thead:first-child > tr:first-child > th,
-table > caption + thead > tr:first-child > td,
-table > colgroup + thead > tr:first-child > td,
-table > thead:first-child > tr:first-child > td {
-  border-top: 0;
-}
-table > tbody + tbody {
-  border-top: 2px solid #ddd;
-}
 
-table {
-  border: 1px solid #ddd;
-}
-table > thead > tr > th,
-table > tbody > tr > th,
-table > tfoot > tr > th,
-table > thead > tr > td,
-table > tbody > tr > td,
-table > tfoot > tr > td {
-  border: 1px solid #ddd;
-}
-table > thead > tr > th,
-table > thead > tr > td {
-  border-bottom-width: 2px;
-}
-table > tbody > tr:nth-of-type(odd) {
-  background-color: #f9f9f9;
-}
-table > tbody > tr:hover {
-  background-color: #f5f5f5;
-}
 </style>

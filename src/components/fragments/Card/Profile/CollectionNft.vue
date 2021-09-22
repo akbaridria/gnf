@@ -1,6 +1,6 @@
 <template>
   <div class="collection-nft-wrapper">
-      <CardNft v-for="(index, item) in listNft" :dataNft="index" :key="item" :widthCard="250" />
+      <CardNft v-for="(index, item) in listNft" :dataNft="index" :key="item" />
    
   </div>
 </template>
