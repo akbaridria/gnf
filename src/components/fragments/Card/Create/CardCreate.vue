@@ -1,7 +1,7 @@
 <template>
   <div style="margin: 0 auto">
     <OverlayLoading v-if="loading" />
-    <div :class="`card-wrapper-create`" v-if="!showDif">
+    <!-- <div :class="`card-wrapper-create`" >
       <Card>
         <template v-slot:default>
           <div :class="`form-create-collection`">
@@ -19,17 +19,28 @@
           </div>
         </template>
       </Card>
-    </div>
-    <div :class="`card-wrapper-create-nft`" v-if="showDif">
+    </div> -->
+    <div :class="`card-wrapper-create-nft`">
       <Card>
         <template v-slot:default>
           <div :class="`form-create-nft`">
-            <GradientText text="Create Your Nft" />
+            <GradientText style="margin-bottom: 24px;" text="Create Your Nft" />
+
             <InputSearch
+              style="padding: 16px 0px"
+              placeholder="Name Of your Collection"
+              @inputValue="getInputCollection($event)"
+            />
+
+            <InputSearch
+              style="padding: 16px 0px"
               placeholder="Name Of your Nft"
               @inputValue="getNftName($event)"
             />
-            <TextArea @inputTextArea="getTextAreaData($event)" />
+            <TextArea
+              style="margin: 16px 0px"
+              @inputTextArea="getTextAreaData($event)"
+            />
             <div
               v-if="imageShow"
               style="max-width: 150px; margin: 0 auto; padding: 20px 0px"
@@ -69,11 +80,7 @@
 <script>
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import { web3FromSource, web3Enable } from "@polkadot/extension-dapp";
-import {
-  fetchAddUser,
-  fetchCheckUser,
-  fetchAddHistory,
-} from "@/utils/utils.js";
+import { fetchAddUser, fetchAddHistory } from "@/utils/utils.js";
 import { NFTStorage } from "nft.storage";
 const apiKey = process.env.VUE_APP_NFTSTORAGE;
 const client = new NFTStorage({ token: apiKey });
@@ -112,16 +119,19 @@ export default {
       nftDescription: "",
       fileImage: "",
       loading: false,
+      tokenId: "",
+      txhash: "",
     };
   },
   watch: {
     isCollection(newValue) {
       this.$data.showDif = newValue;
     },
-    async collectionId(newValue) {
+    async tokenId(newValue) {
       await fetchAddUser({
         wallet_address: this.$store.state.user.walletAddress,
-        collection_id: newValue,
+        token_id: newValue.toString(),
+        price: "0",
       })
         .then((response) => {
           if (response.ok) {
@@ -132,12 +142,6 @@ export default {
         })
         .then((data) => {
           console.log(data);
-          this.$data.showDif = true;
-          this.$emit("alertShow", {
-            variant: "success",
-            textAlert: "Success",
-            alertDescription: "Transaction is completed!",
-          });
         })
         .catch((error) => console.log(error));
     },
@@ -177,6 +181,10 @@ export default {
           this.$store.state.user.walletAddress,
           { signer },
           (status) => {
+            if (status.isFinalized) {
+              this.$data.txhash = status.status.toJSON().Finalized;
+              this.fetchHistory(this.$data.txhash, "Create Collection");
+            }
             status.toHuman().events.forEach((element) => {
               if (element.event.section === "nft") {
                 this.$data.collectionId = element.event.data[0];
@@ -184,21 +192,10 @@ export default {
             });
           }
         )
-        .catch((error) => console.log(error));
-      await fetchAddHistory({
-        wallet_address: this.$store.state.user.walletAddress,
-        event_name: "Create Collection",
-        price: 0,
-        nft_name: "-",
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            return Promise.reject("something went wrong!");
-          }
-        })
-        .catch((err) => console.log(err));
+        .catch((error) => {
+          console.log(error);
+          this.$data.loading = false;
+        });
     },
     async storeImageToNftStorage() {
       const metadata = await client.store({
@@ -221,47 +218,25 @@ export default {
           alertDescription: "Please Filled All The Required Filled.",
         });
       } else {
-        await fetchCheckUser({
-          wallet_address: this.$store.state.user.walletAddress,
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return Promise.reject("something went wrong!");
-            }
-          })
-          .then(async (data) => {
-            const collectionId = data[0].collection_id;
-            const urlImage = await this.storeImageToNftStorage();
-            const mintNft = await this.mintNftUnique(collectionId, urlImage);
-            await fetchAddHistory({
-              wallet_address: this.$store.state.user.walletAddress,
-              event_name: "Mint",
-              price: 0,
-              nft_name: this.$data.nftName,
-            })
-              .then((response) => {
-                if (response.ok) {
-                  return response.json();
-                } else {
-                  return Promise.reject("something went wrong!");
-                }
-              })
-              .catch((err) => console.log(err));
-            if (mintNft) {
-              this.$emit("alertShow", {
-                variant: "success",
-                textAlert: "Submitted",
-                alertDescription:
-                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
-              });
-            }
-          })
-          .catch((error) => console.log(error));
+        await this.addCollection();
+        const urlImage = await this.storeImageToNftStorage();
+        this.mintNftUnique(this.$data.collectionId, urlImage);
       }
-
-      this.$data.loading = false;
+    },
+    async fetchHistory(txHash, event) {
+      await fetchAddHistory({
+        wallet_address: this.$store.state.user.walletAddress,
+        event_name: event,
+        tx_hash: txHash,
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .catch((err) => console.log(err));
     },
     async mintNftUnique(collectionId, urlImage) {
       const { api } = await UseCennznet("app_name", { network: "nikau" });
@@ -277,12 +252,41 @@ export default {
       console.log(allInjected);
       const injector = await web3FromSource("cennznet-extension");
       const signer = injector.signer;
-      const status = await data.signAndSend(
-        this.$store.state.user.walletAddress,
-        { signer }
-      );
-      console.log(status);
-      return true;
+      let counter = 0;
+      await data
+        .signAndSend(
+          this.$store.state.user.walletAddress,
+          { signer },
+          async (status) => {
+            if (status.isFinalized) {
+              this.$data.txhash = status.status.toJSON().Finalized;
+              await this.fetchHistory(this.$data.txhash, "Mint");
+              this.$data.loading = false;
+              this.$emit("alertShow", {
+                variant: "success",
+                textAlert: "Submitted",
+                alertDescription:
+                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
+              });
+            }
+            status.toHuman().events.forEach((element) => {
+              if (element.event.section === "nft") {
+                if (counter === 0) {
+                  counter += 1;
+                  this.$data.tokenId = element.event.data[1];
+                }
+              }
+            });
+          }
+        )
+        .catch(() => {
+          this.$emit("alertShow", {
+            variant: "danger",
+            textAlert: "Error",
+            alertDescription: "Oops something went wrong",
+          });
+          this.$data.loading = false;
+        });
     },
   },
 };
@@ -323,9 +327,6 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100%;
-  & > * {
-    padding-bottom: 20px;
-  }
 }
 .wrapper-form-collection {
   display: flex;

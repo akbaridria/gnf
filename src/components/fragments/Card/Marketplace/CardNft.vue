@@ -17,7 +17,10 @@
     </div>
     <Typography variant="extra-small-text" color="blue-5"> Price </Typography>
     <Typography variant="extra-small-text--medium" color="white">
-      {{ dataNft.price ? dataNft.price : 0 }} CPAY
+      {{
+        dataNft.price ? Number(parseFloat(dataNft.price).toFixed(2)).toLocaleString() : 0
+      }}
+      CPAY
     </Typography>
   </div>
 </template>

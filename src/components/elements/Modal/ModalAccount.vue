@@ -1,20 +1,23 @@
 <template>
-  <div id="open-modal-sell" class="modal-window">
+  <div id="open-modal" class="modal-window">
     <div>
-      <a href="#" title="Close" id="close-modal-sell" class="modal-close"
-        >Close</a
-      >
+      <a href="#" title="Close" id="close-modal" class="modal-close">Close</a>
       <div class="wrapper-sell">
         <Typography variant="large-text" color="white">
-          Sell this Nft For
+          Choose Your Account
         </Typography>
-        <input
-          class="input-number"
-          type="number"
-          @input="getSellNumber($event.target.value)"
-        />
-        <div class="button-wrapper" @click="submitAndSell">
-          <GradientText :text="`Submit`" />
+        <div
+          v-for="(item, index) in allAccount"
+          :key="index"
+          class="wrapper-all-account"
+          @click="$emit('getAccountId', index)"
+        >
+          <span>
+            {{ item.meta.name }}
+          </span>
+          <div class="address-container">
+            {{ item.address }}
+          </div>
         </div>
       </div>
     </div>
@@ -23,12 +26,19 @@
 
 <script>
 import Typography from "@/components/elements/Typography/Typography.vue";
-import GradientText from "@/components/fragments/GradientText/GradientText.vue";
+// import GradientText from "@/components/fragments/GradientText/GradientText.vue";
 export default {
-  name: "Modal",
+  name: "ModalAccount",
   components: {
     Typography,
-    GradientText,
+    // GradientText,
+  },
+  props: {
+    allAccount: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data: function () {
     return {
@@ -40,7 +50,7 @@ export default {
       this.$data.priceSell = value;
     },
     submitAndSell() {
-      if (parseInt(this.$data.priceSell) === 0 || this.$data.priceSell === "") {
+      if (this.$data.priceSell === 0 || this.$data.priceSell === "") {
         this.$emit("errorNumber", {
           variant: "danger",
           alertText: "Error",
@@ -57,6 +67,27 @@ export default {
 <style lang="scss" scoped>
 @import "@/assets/styles/abstract/_variables.scss";
 
+.wrapper-all-account {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: white;
+  font-size: 12px;
+  background-color: $gray-22;
+  padding: 6px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  &:hover {
+    background-color: $gray-8;
+  }
+}
+
+.address-container {
+  width: 270px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .button-wrapper {
   display: flex;
   justify-content: center;
@@ -76,9 +107,6 @@ export default {
   align-items: center;
   justify-content: center;
   margin: 20px 12px;
-  & > * {
-    margin: 8px 0px;
-  }
 }
 .input-number {
   width: 100%;

@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <template v-slot:default>
-      <CardCreate v-if="isConnectToWallet" :isCollection="isThereCollection" @alertShow="alertShow($event)" />
+      <CardCreate v-if="isConnectToWallet" @alertShow="alertShow($event)" />
       <NotConnected v-if="!isConnectToWallet" />
     </template>
   </DefaultLayout>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { fetchCheckUser } from "@/utils/utils.js";
+// import { fetchCheckUser } from "@/utils/utils.js";
 import CardCreate from "@/components/fragments/Card/Create/CardCreate.vue";
 import DefaultLayout from "@/components/layouts/DefaultLayout.vue";
 import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.vue";
@@ -44,14 +44,14 @@ export default {
     "$store.state.user.isConnected": function () {
       this.$data.isConnectToWallet = this.$store.state.user.isConnected;
       this.$data.payload.wallet_address = this.$store.state.user.walletAddress;
-      this.fetchUser();
+      // this.fetchUser();
     },
   },
-  mounted() {
-    if (this.$store.state.user.isConnected) {
-      this.fetchUser();
-    }
-  },
+  // mounted() {
+  //   if (this.$store.state.user.isConnected) {
+  //     this.fetchUser();
+  //   }
+  // },
   methods: {
     alertShow(value) {
       this.$data.variantAlert = value.variant
@@ -60,22 +60,22 @@ export default {
       this.$data.showAlert = true
       setTimeout(() => this.$data.showAlert = false, 4000)
     },
-    async fetchUser() {
-      await fetchCheckUser(this.$data.payload)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            console.log(response);
-            return Promise.reject("something went wrong!");
-          }
-        })
-        .then((data) => {
-          this.$data.isThereCollection = data.length > 0 ? true : false;
-        })
-        .catch((error) => console.log(error));
-      console.log(this.$data.isThereCollection);
-    },
+    // async fetchUser() {
+    //   await fetchCheckUser(this.$data.payload)
+    //     .then((response) => {
+    //       if (response.ok) {
+    //         return response.json();
+    //       } else {
+    //         console.log(response);
+    //         return Promise.reject("something went wrong!");
+    //       }
+    //     })
+    //     .then((data) => {
+    //       this.$data.isThereCollection = data.length > 0 ? true : false;
+    //     })
+    //     .catch((error) => console.log(error));
+    //   console.log(this.$data.isThereCollection);
+    // },
   },
 };
 </script>

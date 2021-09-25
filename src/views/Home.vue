@@ -19,7 +19,7 @@ import DefaultLayout from "@/components/layouts/DefaultLayout.vue";
 import Card from "@/components/elements/Card/Card.vue";
 import CardFromSearch from "@/components/fragments/Card/Marketplace/CardFormSearch.vue";
 import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
-import { fetchAllMarket, toGateWay } from "@/utils/utils.js";
+import { fetchAllListing, toGateWay } from "@/utils/utils.js";
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import CollectionNft from "@/components/fragments/Card/Profile/CollectionNft.vue"
 // import CardNfts from "@/components/fragments/Card/Marketplace/CardNfts.vue";
@@ -51,11 +51,10 @@ export default {
       newValue.forEach(async (element) => {
         const dataPrice = await api.query.nft.listings(element.listing_id);
         const metaDataNft = await api.query.nft.seriesAttributes(
-          dataPrice.toHuman().FixedPrice.tokens[0][0],
-          dataPrice.toHuman().FixedPrice.tokens[0][1]
+          dataPrice.toJSON().FixedPrice.tokens[0][0],
+          dataPrice.toJSON().FixedPrice.tokens[0][1]
         );
-        console.log(dataPrice.toHuman())
-        await fetch(toGateWay(metaDataNft.toHuman()[0].Url).href)
+        await fetch(toGateWay(metaDataNft.toJSON()[0].Url).href)
           .then((response) => {
             if (response.ok) {
               return response.json();
@@ -66,13 +65,13 @@ export default {
           })
           .then((data) => {
             this.$data.listNft.push({
-              collectionId: dataPrice.toHuman().FixedPrice.tokens[0][0],
-              seriesId: dataPrice.toHuman().FixedPrice.tokens[0][1],
+              collectionId: dataPrice.toJSON().FixedPrice.tokens[0][0],
+              seriesId: dataPrice.toJSON().FixedPrice.tokens[0][1],
               name: data.name,
               description: data.description,
               image: toGateWay(data.image),
-              serialNumber: dataPrice.toHuman().FixedPrice.tokens[0][2],
-              price: dataPrice.toHuman().FixedPrice.fixedPrice
+              serialNumber: dataPrice.toJSON().FixedPrice.tokens[0][2],
+              price: parseFloat(dataPrice.toJSON().FixedPrice.fixedPrice)/Math.pow(10,4)
             });
           })
           .catch((error) => console.log(error));
@@ -81,7 +80,7 @@ export default {
   },
   methods: {
     async getAllNft() {
-      await fetchAllMarket({})
+      await fetchAllListing({})
         .then((response) => {
           if (response.ok) {
             return response.json();

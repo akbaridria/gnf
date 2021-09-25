@@ -1,30 +1,36 @@
 <template>
   <div class="history-wrapper">
-    <div v-for="(index, item) in historyUser" :key="item" class="history-item">
+    <div
+      v-for="(index, item) in historyUser"
+      :key="item"
+      class="history-item"
+      @click="goToTx(index.tx_hash)"
+    >
       <div>
         {{ new Date(index.timestamp).toLocaleDateString(undefined, options) }}
       </div>
       <div>
         {{ index.event_name }}
       </div>
-      <div>
-        {{ index.nft_name }}
-      </div>
-      <div>
-       {{ index.price }} CPAY
+      <div class="truncate-tx-hash">
+        {{ index.tx_hash }}
       </div>
     </div>
-    <NotConnected v-if="historyUser.length === 0" text="You dont have any transaction in trapo 😭" />
+    <NotConnected
+      v-if="historyUser.length === 0"
+      text="You dont have any transaction in trapo 😭"
+    />
   </div>
 </template>
 
 <script>
-import { fetchGetUserHistory } from "@/utils/utils.js";
-import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.vue"
+import { fetchUserHistory } from "@/utils/utils.js";
+import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.vue";
+
 export default {
   name: "HistoryUser",
   components: {
-    NotConnected
+    NotConnected,
   },
   data: function () {
     return {
@@ -37,12 +43,15 @@ export default {
       },
     };
   },
-  mounted() {
-    this.getUserHistory();
+  async mounted() {
+    await this.getUserHistory();
   },
   methods: {
+    goToTx(txId) {
+      window.open(`https://uncoverexplorer.com/extrinsic/${txId}`);
+    },
     async getUserHistory() {
-      fetchGetUserHistory({
+      fetchUserHistory({
         wallet_address: this.$store.state.user.walletAddress,
       })
         .then((response) => {
@@ -84,6 +93,13 @@ export default {
   justify-content: center;
   width: 930px;
   margin-bottom: 24px;
+  cursor: pointer;
 }
 
+.truncate-tx-hash {
+  width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>

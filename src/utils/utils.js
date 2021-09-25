@@ -1,19 +1,5 @@
 const baseUrl = 'http://localhost:3300/'
 
-export async function fetchCheckUser(payload){
-    const url = `${baseUrl}users/check`
-    const response = await fetch(url, {
-        method: 'POST',
-        cache: 'no-cache', 
-        credentials: 'same-origin', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-      return response
-}
-
 export async function fetchAddUser(payload){
   const url = `${baseUrl}users/add`
   const response = await fetch(url, {
@@ -42,7 +28,21 @@ export async function fetchAddHistory(payload){
     return response
 }
 
-export async function fetchGetUserHistory(payload){
+export async function fetchUserByWalletAddress(payload){
+  const url = `${baseUrl}user/getByUserWallet`
+  const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-cache', 
+      credentials: 'same-origin', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    return response
+}
+
+export async function fetchUserHistory(payload){
   const url = `${baseUrl}user/history/get`
   const response = await fetch(url, {
       method: 'POST',
@@ -70,7 +70,7 @@ export async function fetchAddTransaction(payload){
     return response
 }
 
-export async function fetchCheckListingById(payload){
+export async function fetchCheckStatusListing(payload){
   const url = `${baseUrl}users/transaction/checkListing`
   const response = await fetch(url, {
       method: 'POST',
@@ -84,7 +84,7 @@ export async function fetchCheckListingById(payload){
     return response
 }
 
-export async function fetchAllMarket(payload){
+export async function fetchAllListing(payload){
   const url = `${baseUrl}transactions`
   const response = await fetch(url, {
       method: 'POST',
@@ -98,14 +98,23 @@ export async function fetchAllMarket(payload){
     return response
 }
 
-export function toGateWay(urlGateway){
-  const GATEWAY = new URL("https://dweb.link/")
-  return new URL(
-    `/ipfs/${urlGateway.slice("ipfs://".length)}`,
-    GATEWAY)
+
+export async function fetchDeleteUser(payload){
+  const url = `${baseUrl}users/delete`
+  const response = await fetch(url, {
+      method: 'POST',
+      cache: 'no-cache', 
+      credentials: 'same-origin', 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+    return response
 }
 
-export async function fetchDeleteListing(payload){
+
+export async function fetchDeletListing(payload){
   const url = `${baseUrl}users/transaction/deleteListing`
   const response = await fetch(url, {
       method: 'POST',
@@ -118,3 +127,10 @@ export async function fetchDeleteListing(payload){
     })
     return response
 }
+export function toGateWay(urlGateway){
+  const GATEWAY = new URL("https://dweb.link/")
+  return new URL(
+    `/ipfs/${urlGateway.slice("ipfs://".length)}`,
+    GATEWAY)
+}
+

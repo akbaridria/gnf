@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%; margin:24px 0px;">
+  <div style="width:100%;">
     <input :class="`input-style`" type="text" :placeholder="placeholder" @input="$emit('inputValue', $event.target.value)"/>
   </div>
 </template>

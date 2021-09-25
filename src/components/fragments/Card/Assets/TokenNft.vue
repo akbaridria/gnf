@@ -70,7 +70,8 @@
                 :color="`pink-1`"
                 :truncate="false"
               >
-                {{ dataNft.price ? dataNft.price : 0 }} CPAY
+                {{ Number(parseFloat(priceSell).toFixed(1)).toLocaleString() }}
+                CPAY
               </Typography>
             </div>
             <div :class="`button-wrapper`" @click="clickButton">
@@ -78,8 +79,8 @@
             </div>
             <a
               class="btn"
-              id="actionButton"
-              href="#open-modal"
+              id="actionButtonSell"
+              href="#open-modal-sell"
               style="display: none"
             ></a>
           </div>
@@ -128,8 +129,10 @@ import TimeOutline from "@/assets/Icons/TimeOutline.vue";
 import {
   fetchAddTransaction,
   fetchAddHistory,
-  fetchCheckListingById,
-  fetchDeleteListing,
+  fetchCheckStatusListing,
+  fetchAddUser,
+  fetchDeleteUser,
+  fetchDeletListing,
 } from "@/utils/utils.js";
 import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
 export default {
@@ -157,7 +160,7 @@ export default {
       loading: false,
       showModal: false,
       priceSell: 0,
-      actionName: "Buy Now",
+      actionName: "",
       listingStat: {},
       options: {
         weekday: "long",
@@ -165,13 +168,14 @@ export default {
         month: "long",
         day: "numeric",
       },
+      txhash: "",
     };
   },
   watch: {
     async listingId(newValue) {
       await fetchAddTransaction({
         wallet_address: this.$store.state.user.walletAddress,
-        listing_id: newValue,
+        listing_id: newValue.toHuman(),
         type: "Sell",
         sold: false,
         token_id: `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`,
@@ -184,22 +188,15 @@ export default {
           }
         })
         .then((data) => console.log(data))
-        .catch((err) => console.log(err));
-      console.log(this.$props.dataNft.name);
-      await fetchAddHistory({
-        wallet_address: this.$store.state.user.walletAddress,
-        event_name: "Sell",
-        price: this.$data.priceSell,
-        nft_name: this.$props.dataNft.name,
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          } else {
-            return Promise.reject("something went wrong!");
-          }
-        })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "danger",
+            alertText: "Error",
+            description: "Oopss.. something went wrong",
+          });
+        });
       this.$data.loading = false;
       this.$emit("alertToParent", {
         variant: "success",
@@ -215,110 +212,6 @@ export default {
     this.$data.loading = false;
   },
   methods: {
-    clickButton() {
-      if (this.$data.actionName == "Sell Now") {
-        document.getElementById("actionButton").click();
-      }
-      if (this.$data.actionName == "Cancel Listing") {
-        this.cancelListingNft();
-      }
-      if(this.$data.actionName == "Buy Now"){
-        this.buyNft()
-      }
-    },
-    async buyNft(){
-      const { api } = await UseCennznet("app_name", { network: "nikau" });
-      const buy = api.tx.nft.buy(this.$data.listingStat.listing_id)
-      const allInjected = await web3Enable("app name");
-      console.log(allInjected);
-      const injector = await web3FromSource("cennznet-extension");
-      const signer = injector.signer;
-      const status = await buy.signAndSend(
-        this.$store.state.user.walletAddress,
-        { signer }
-      );
-      if (status) {
-        await fetchDeleteListing({
-          listingId: parseInt(this.$data.listingStat.listing_id),
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return Promise.reject("something went wrong!");
-            }
-          })
-          .catch((err) => console.log(err));
-        await fetchAddHistory({
-          wallet_address: this.$store.state.user.walletAddress,
-          event_name: "Buy",
-          price: this.$props.dataNft.price ? this.$props.dataNft.price : 0,
-          nft_name: this.$props.dataNft.name,
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return Promise.reject("something went wrong!");
-            }
-          })
-          .catch((err) => console.log(err));
-        this.$emit("alertToParent", {
-          variant: "success",
-          alertText: "Submitted",
-          description:
-            "Your transaction successfully submit! check it on explorer.",
-        });
-      }
-    },
-    async cancelListingNft() {
-      const { api } = await UseCennznet("app_name", { network: "nikau" });
-      const cancel = await api.tx.nft.cancelSale(
-        this.$data.listingStat.listing_id
-      );
-      const allInjected = await web3Enable("app name");
-      console.log(allInjected);
-      const injector = await web3FromSource("cennznet-extension");
-      const signer = injector.signer;
-      const status = await cancel.signAndSend(
-        this.$store.state.user.walletAddress,
-        { signer }
-      );
-      console.log(status.toHuman());
-      if (status) {
-        await fetchDeleteListing({
-          listingId: parseInt(this.$data.listingStat.listing_id),
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return Promise.reject("something went wrong!");
-            }
-          })
-          .catch((err) => console.log(err));
-        await fetchAddHistory({
-          wallet_address: this.$store.state.user.walletAddress,
-          event_name: "Cancel Listing",
-          price: this.$props.dataNft.price ? this.$props.dataNft.price : 0,
-          nft_name: this.$props.dataNft.name,
-        })
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              return Promise.reject("something went wrong!");
-            }
-          })
-          .catch((err) => console.log(err));
-        this.$emit("alertToParent", {
-          variant: "success",
-          alertText: "Submitted",
-          description:
-            "Your transaction successfully submit! check it on explorer.",
-        });
-      }
-    },
     async getTokenOwner() {
       const { api } = await UseCennznet("app_name", { network: "nikau" });
       const data = await api.query.nft.tokenOwner(
@@ -328,7 +221,7 @@ export default {
       this.$data.tokenOwner = data.toHuman();
     },
     async getActionName() {
-      await fetchCheckListingById({
+      await fetchCheckStatusListing({
         token_id: `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`,
       })
         .then((response) => {
@@ -338,72 +231,225 @@ export default {
             return Promise.reject("something went wrong!");
           }
         })
-        .then((data) => {
+        .then(async (data) => {
+          const { api } = await UseCennznet("app_name", { network: "nikau" });
+
           if (data.length > 0) {
+            const dataPrice = await api.query.nft.listings(data[0].listing_id);
             this.$data.listingStat = data[0];
+            this.$data.priceSell =
+              dataPrice.toJSON().FixedPrice.fixedPrice / Math.pow(10, 4);
             if (
-              this.$data.tokenOwner.toUpperCase() ===
-              this.$store.state.user.walletAddress.toUpperCase()
+              this.$data.tokenOwner === this.$store.state.user.walletAddress
             ) {
               this.$data.actionName = "Cancel Listing";
+            } else {
+              this.$data.actionName = "Buy Now";
             }
           } else {
             if (
-              this.$data.tokenOwner.toUpperCase() ===
-              this.$store.state.user.walletAddress.toUpperCase()
+              this.$data.tokenOwner === this.$store.state.user.walletAddress
             ) {
               this.$data.actionName = "Sell Now";
+            } else {
+              this.$data.actionName = "Buy Now";
             }
           }
         })
         .catch((err) => console.log(err));
-      // const { api } = await UseCennznet("app_name", { network: "nikau" });
-      // const status = api.derive.nft.tokenInfo([this.$props.dataNft.collectionId, this.$props.dataNft.seriesId,this.$props.dataNft.serialNumber])
-      // console.log('statusss token', status)
     },
+    clickButton() {
+      if (this.$data.actionName === "Sell Now") {
+        document.getElementById("actionButtonSell").click();
+      }
+      if (this.$data.actionName === "Buy Now") {
+        this.buyNft();
+      }
+    },
+    async buyNft() {
+      this.$data.loading = true;
+      const { api } = await UseCennznet("app_name", { network: "nikau" });
+      const buy = api.tx.nft.buy(this.$data.listingStat.listing_id);
+      const allInjected = await web3Enable("app name");
+      console.log(allInjected);
+      const injector = await web3FromSource("cennznet-extension");
+      const signer = injector.signer;
+      await buy
+        .signAndSend(
+          this.$store.state.user.walletAddress,
+          { signer },
+          async (status) => {
+            if (status.isFinalized) {
+              this.$data.txhash = status.status.toJSON().Finalized;
+              this.$emit("alertShow", {
+                variant: "success",
+                textAlert: "Submitted",
+                alertDescription:
+                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
+              });
+              await this.fetchHistory(this.$data.txhash, "Buy");
+              await this.fetchDeleteUserByTokenAndWallet(
+                `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`
+              );
+              await this.fetchInserUser(
+                `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`
+              );
+              await this.fetchDeleteUserListing();
+            }
+          }
+        )
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "danger",
+            alertText: "Error",
+            description: "Oopss.. something went wrong, with your transaction",
+          });
+        });
+    },
+    async fetchInserUser(newValue) {
+      await fetchAddUser({
+        wallet_address: this.$store.state.user.walletAddress,
+        token_id: newValue.toString(),
+        price: this.$data.priceSell,
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response;
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          this.$data.loading = false;
+          console.log(error);
+        });
+    },
+    async fetchDeleteUserListing() {
+      await fetchDeletListing({
+        listingId: this.$data.listingStat.listing_id,
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response;
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          this.$data.loading = false;
+          console.log(error);
+        });
+    },
+    async fetchDeleteUserByTokenAndWallet(newValue) {
+      await fetchDeleteUser({
+        token_id: newValue.toString(),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response;
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "danger",
+            alertText: "Error",
+            description: "Oopss.. Error to Delete User",
+          });
+        });
+    },
+
+    async fetchHistory(txHash, event) {
+      await fetchAddHistory({
+        wallet_address: this.$store.state.user.walletAddress,
+        event_name: event,
+        tx_hash: txHash,
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return Promise.reject("something went wrong!");
+          }
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+        });
+    },
+
     async callAction(value) {
+      console.log(value);
       this.$data.loading = true;
       this.$data.priceSell = value;
+      console.log(this.$data.priceSell);
       const { api } = await UseCennznet("app_name", { network: "nikau" });
-      if (this.$data.actionName === "Sell Now") {
-        const sell = api.tx.nft.sell(
-          [
-            this.$props.dataNft.collectionId,
-            this.$props.dataNft.seriesId,
-            this.$props.dataNft.serialNumber,
-          ],
-          null,
-          16000,
-          value,
-          null
-        );
-        const allInjected = await web3Enable("app name");
-        console.log(allInjected);
-        const injector = await web3FromSource("cennznet-extension");
-        const signer = injector.signer;
-        sell
-          .signAndSend(
-            this.$store.state.user.walletAddress,
-            { signer },
-            (status) => {
-              status.toHuman().events.forEach((element) => {
-                if (element.event.section === "nft") {
-                  this.$data.listingId = element.event.data[1];
-                  this.$data.loading = false;
-                }
+      const sell = api.tx.nft.sell(
+        [
+          this.$props.dataNft.collectionId,
+          this.$props.dataNft.seriesId,
+          this.$props.dataNft.serialNumber,
+        ],
+        null,
+        16001,
+        Math.pow(10, 4) * value,
+        null
+      );
+      const allInjected = await web3Enable("app name");
+      console.log(allInjected);
+      const injector = await web3FromSource("cennznet-extension");
+      const signer = injector.signer;
+      let counter = 0;
+      sell
+        .signAndSend(
+          this.$store.state.user.walletAddress,
+          { signer },
+          async (status) => {
+            if (status.isFinalized) {
+              this.$data.txhash = status.status.toJSON().Finalized;
+              await this.fetchHistory(this.$data.txhash, "Sell");
+              this.$data.loading = false;
+              this.$emit("alertShow", {
+                variant: "success",
+                textAlert: "Submitted",
+                alertDescription:
+                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
               });
             }
-          )
-          .catch((err) => {
-            console.log(err);
-            this.$data.loading = false;
-            this.$emit("alertToParent", {
-              variant: "danger",
-              alertText: "Error",
-              description: "Oopss.. something went wrong",
+            status.events.forEach(async (element) => {
+              if (element.event.section === "nft" && counter === 0) {
+                counter += 1;
+                this.$data.listingId = element.event.data[1];
+              }
             });
+          }
+        )
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "danger",
+            alertText: "Error",
+            description: "Oopss.. something went wrong",
           });
-      }
+        });
     },
   },
 };

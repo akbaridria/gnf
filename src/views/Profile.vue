@@ -2,7 +2,7 @@
   <div style="margin: 0 auto">
     <OverlayLoading v-if="loading" />
     <NotConnected v-if="!$store.state.user.isConnected" />
-    
+
     <DefaultLayout v-else>
       <template v-slot:default>
         <Card style="margin: 0 auto">
@@ -53,7 +53,7 @@ import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.
 import CollectionNft from "@/components/fragments/Card/Profile/CollectionNft.vue";
 import HistoryUser from "@/components/fragments/Card/Profile/HistoryUser.vue";
 import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
-import { fetchCheckUser } from "@/utils/utils.js";
+import { fetchUserByWalletAddress } from "@/utils/utils.js";
 import OverlayLoading from "@/components/elements/Overlay/OverlayLoading.vue";
 // import { toGatewayURL } from "nft.storage";
 export default {
@@ -94,12 +94,13 @@ export default {
         GATEWAY
       );
       this.$data.allNft.push({
-        collectionId: this.$data.collectionId,
+        collectionId: newValue.collectionId,
         seriesId: newValue.seriesId,
         name: data.name,
         description: data.description,
         image: dataImage,
         serialNumber: newValue.serialNumber,
+        price: newValue.price
       });
     },
   },
@@ -120,52 +121,62 @@ export default {
     async getAllNft() {
       this.$data.loading = true;
       const { api } = await UseCennznet("app_name", { network: "nikau" });
-      const collectionId = await this.checkCollectionId(
-        this.$store.state.user.walletAddress
-      );
-      if (typeof collectionId !== "undefined" && collectionId.length > 0) {
-        this.$data.collectionId = collectionId[0].collection_id;
-        const collecNft = await api.rpc.nft.collectedTokens(
-          collectionId[0].collection_id,
-          this.$store.state.user.walletAddress
-        );
-        collecNft.toHuman().forEach(async (element) => {
-          await api.query.nft
-            .seriesAttributes(collectionId[0].collection_id, element.seriesId)
-            .then((data) => {
-              const GATEWAY = new URL("https://dweb.link/");
-              this.$data.dataNft = {
-                data: new URL(
-                  `/ipfs/${data.toHuman()[0].Url.slice("ipfs://".length)}`,
-                  GATEWAY
-                ),
-                seriesId: element.seriesId,
-                serialNumber: element.serialNumber,
-              };
-            });
-        });
-      } else {
-        this.$data.noCollectionId = true;
-      }
-      this.$data.loading = false;
-    },
-    async checkCollectionId(walletAddress) {
-      return await fetchCheckUser({
-        wallet_address: walletAddress,
+      await fetchUserByWalletAddress({
+        wallet_address: this.$store.state.user.walletAddress,
       })
         .then((response) => {
           if (response.ok) {
             return response.json();
           } else {
-            console.log(response);
             return Promise.reject("something went wrong!");
           }
         })
         .then((data) => {
-          return data;
+          if (data.length > 0) {
+            data.forEach(async (element) => {
+              await api.query.nft
+                .seriesAttributes(
+                  element.token_id.split(",")[0],
+                  element.token_id.split(",")[1]
+                )
+                .then((data) => {
+                  const GATEWAY = new URL("https://dweb.link/");
+                  this.$data.dataNft = {
+                    data: new URL(
+                      `/ipfs/${data.toHuman()[0].Url.slice("ipfs://".length)}`,
+                      GATEWAY
+                    ),
+                    collectionId: element.token_id.split(",")[0],
+                    seriesId: element.token_id.split(",")[1],
+                    serialNumber: element.token_id.split(",")[2],
+                    price: element.price
+                  };
+                });
+            });
+          } else {
+            this.$data.noCollectionId = true;
+          }
+          this.$data.loading = false;
         })
-        .catch((error) => console.log(error));
+        .catch((err) => console.log(err));
     },
+    // async checkCollectionId(walletAddress) {
+    //   return await fetchCheckUser({
+    //     wallet_address: walletAddress,
+    //   })
+    //     .then((response) => {
+    //       if (response.ok) {
+    //         return response.json();
+    //       } else {
+    //         console.log(response);
+    //         return Promise.reject("something went wrong!");
+    //       }
+    //     })
+    //     .then((data) => {
+    //       return data;
+    //     })
+    //     .catch((error) => console.log(error));
+    // },
   },
 };
 </script>

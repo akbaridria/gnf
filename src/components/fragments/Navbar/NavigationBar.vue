@@ -27,6 +27,11 @@
       />
     </div>
   </div>
+  <a class="btn" id="actionButton" href="#open-modal" style="display: none"></a>
+  <ModalAccount
+    :allAccount="getAllAccount"
+    @getAccountId="callAction($event)"
+  />
   <router-view />
 </template>
 
@@ -36,12 +41,14 @@ import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import Logo from "@/components/fragments/Logo/Logo.vue";
 import BaseButton from "@/components/elements/Button/BaseButton.vue";
 import BadgeAccount from "@/components/fragments/Badge/BadgeAccount.vue";
+import ModalAccount from "@/components/elements/Modal/ModalAccount.vue";
 export default {
   name: "NavigationBar",
   components: {
     Logo,
     BaseButton,
     BadgeAccount,
+    ModalAccount,
   },
   data: function () {
     return {
@@ -63,37 +70,75 @@ export default {
       accountName: "wallet-name",
       accountAddress: "0x",
       balance: 0,
+      assetId: 16001,
+      AllAccount: [],
     };
   },
+  computed: {
+    getAllAccount() {
+      return this.$data.AllAccount;
+    },
+  },
   methods: {
+    async callAction(iAddress) {
+      const { api, accounts, isExtensionInstalled } = await UseCennznet("app_name", {
+        network: "nikau",
+      });
+      this.$data.isConnected = isExtensionInstalled;
+      this.$data.accountName = accounts[iAddress].meta.name;
+      this.$data.accountAddress = accounts[iAddress].address;
+      this.$data.assetId = 16001;
+      this.$store.commit("updateConnect", {
+        isConnected: isExtensionInstalled,
+        walletAddress: accounts[iAddress].address,
+        walletName: accounts[iAddress].meta.name,
+      });
+      await api.query.genericAsset.freeBalance(
+        this.$data.assetId,
+        accounts[iAddress].address,
+        (balance) => {
+          this.$data.balance = balance / Math.pow(10, 4);
+        }
+      );
+      document.getElementById('close-modal').click()
+    },
     async connectWallet() {
       try {
         const { api, accounts, isExtensionInstalled } = await UseCennznet(
           "app_name",
           { network: "nikau" }
         );
-
-        this.$data.isConnected = isExtensionInstalled;
-        this.$data.accountName = accounts[0].meta.name;
-        this.$data.accountAddress = accounts[0].address;
-        let assetId = 16001;
-        this.$store.commit('updateConnect', {
-          isConnected: isExtensionInstalled,
-          walletAddress: accounts[0].address,
-          walletName: accounts[0].meta.name
-        })
-        await api.query.genericAsset.freeBalance(
-          assetId,
-          accounts[0].address,
-          (balance) => {
-            this.$data.balance = balance / Math.pow(10, 4);
-          }
-        );
+        if (accounts.length > 1) {
+          this.$data.AllAccount = accounts;
+          console.log(this.$data.AllAccount);
+          document.getElementById("actionButton").click();
+        } else {
+          this.$data.isConnected = isExtensionInstalled;
+          this.$data.accountName = accounts[0].meta.name;
+          this.$data.accountAddress = accounts[0].address;
+          this.$data.assetId = 16001;
+          this.$store.commit("updateConnect", {
+            isConnected: isExtensionInstalled,
+            walletAddress: accounts[0].address,
+            walletName: accounts[0].meta.name,
+          });
+          await api.query.genericAsset.freeBalance(
+            this.$data.assetId,
+            accounts[0].address,
+            (balance) => {
+              this.$data.balance = balance / Math.pow(10, 4);
+            }
+          );
+        }
       } catch (error) {
-        this.$emit('showAlert', { variant: 'danger', textAlert: 'Error', alertDescription: 'Install Cennz extention or Allowed this website to connect'})
+        this.$emit("showAlert", {
+          variant: "danger",
+          textAlert: "Error",
+          alertDescription:
+            "Install Cennz extention or Allowed this website to connect",
+        });
       }
     },
-    
   },
 };
 </script>
