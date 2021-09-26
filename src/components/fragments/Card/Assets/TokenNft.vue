@@ -265,6 +265,46 @@ export default {
       if (this.$data.actionName === "Buy Now") {
         this.buyNft();
       }
+      if (this.$data.actionName === "Cancel Listing") {
+        this.cancelListing();
+      }
+    },
+    async cancelListing() {
+      this.$data.loading = true;
+      const { api } = await UseCennznet("app_name", { network: "nikau" });
+      const cancel = await api.tx.nft.cancelSale(
+        this.$data.listingStat.listing_id
+      );
+      const allInjected = await web3Enable("app name");
+      console.log(allInjected);
+      const injector = await web3FromSource("cennznet-extension");
+      const signer = injector.signer;
+      await cancel
+        .signAndSend(
+          this.$store.state.user.walletAddress,
+          { signer },
+          async (status) => {
+            if (status.isFinalized) {
+              this.$data.txhash = status.status.toJSON().Finalized;
+              await this.fetchHistory(this.$data.txhash, "Cancel Listing");
+              await this.fetchDeleteUserListing();
+              this.$emit("alertToParent", {
+                variant: "success",
+                alertText: "Success",
+                description: "Your transaction is submitted!",
+              });
+            }
+          }
+        )
+        .catch((err) => {
+          console.log(err);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "danger",
+            alertText: "Error",
+            description: "Oopss.. something went wrong, with your transaction",
+          });
+        });
     },
     async buyNft() {
       this.$data.loading = true;
@@ -281,12 +321,7 @@ export default {
           async (status) => {
             if (status.isFinalized) {
               this.$data.txhash = status.status.toJSON().Finalized;
-              this.$emit("alertShow", {
-                variant: "success",
-                textAlert: "Submitted",
-                alertDescription:
-                  "Transaction is Submitted!, wait for 5-10 Minutes while data is being loaded!",
-              });
+
               await this.fetchHistory(this.$data.txhash, "Buy");
               await this.fetchDeleteUserByTokenAndWallet(
                 `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`
@@ -295,6 +330,11 @@ export default {
                 `${this.$props.dataNft.collectionId},${this.$props.dataNft.seriesId},${this.$props.dataNft.serialNumber}`
               );
               await this.fetchDeleteUserListing();
+              this.$emit("alertToParent", {
+                variant: "success",
+                alertText: "Success",
+                description: "Your transaction is submitted!",
+              });
             }
           }
         )

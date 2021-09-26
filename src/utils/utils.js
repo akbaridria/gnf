@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost:3300/'
+const baseUrl = 'https://trapo-backend.herokuapp.com/'
 
 export async function fetchAddUser(payload){
   const url = `${baseUrl}users/add`
