@@ -1,7 +1,6 @@
 <template>
   <div :class="`card-wrapper-nft`">
     <OverlayLoading v-if="loading" />
-
     <div style="width: 400px">
       <Card>
         <template v-slot:default>
@@ -34,6 +33,9 @@
               :class="`image-wrapper`"
               :src="dataNft.image"
             />
+            <center>
+              <QrCode :url="urlVerifOwner" />
+            </center>
           </div>
         </template>
       </Card>
@@ -126,6 +128,7 @@ import { UseCennznet } from "@cennznet/api/hooks/UseCennznet";
 import { web3FromSource, web3Enable } from "@polkadot/extension-dapp";
 import Modal from "@/components/elements/Modal/Modal.vue";
 import TimeOutline from "@/assets/Icons/TimeOutline.vue";
+import QrCode from "@/components/elements/QrCode/QrCode.vue";
 import {
   fetchAddTransaction,
   fetchAddHistory,
@@ -144,6 +147,7 @@ export default {
     GradientButton,
     OverlayLoading,
     Modal,
+    QrCode,
     TimeOutline,
   },
   props: {
@@ -169,6 +173,7 @@ export default {
         day: "numeric",
       },
       txhash: "",
+      urlVerifOwner: `https://trapo.akbaridria.com/owner/?collectionId=${this.$props.dataNft.collectionId}&seriesId=${this.$props.dataNft.seriesId}&serialNumber=${this.$props.dataNft.serialNumber}`,
     };
   },
   watch: {
@@ -187,7 +192,16 @@ export default {
             return Promise.reject("something went wrong!");
           }
         })
-        .then((data) => console.log(data))
+        .then((data) => {
+          console.log(data);
+          this.$data.loading = false;
+          this.$emit("alertToParent", {
+            variant: "success",
+            alertText: "Success",
+            description:
+              "Transaction is submitted, you can see it in explorer.",
+          });
+        })
         .catch((err) => {
           console.log(err);
           this.$data.loading = false;
@@ -197,12 +211,6 @@ export default {
             description: "Oopss.. something went wrong",
           });
         });
-      this.$data.loading = false;
-      this.$emit("alertToParent", {
-        variant: "success",
-        alertText: "Success",
-        description: "Transaction is submitted, you can see it in explorer.",
-      });
     },
   },
   async mounted() {
@@ -272,9 +280,7 @@ export default {
     async cancelListing() {
       this.$data.loading = true;
       const { api } = await UseCennznet("app_name", { network: "nikau" });
-      const cancel = await api.tx.nft.cancelSale(
-        this.$data.listingStat.listing_id
-      );
+      const cancel = api.tx.nft.cancelSale(this.$data.listingStat.listing_id);
       const allInjected = await web3Enable("app name");
       console.log(allInjected);
       const injector = await web3FromSource("cennznet-extension");

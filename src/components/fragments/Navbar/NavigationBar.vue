@@ -1,6 +1,6 @@
 <template>
   <div :class="`nav`">
-    <div :class="`left-menu`">
+    <div v-if="!isMobile()" :class="`left-menu`">
       <div><Logo /></div>
       <div :class="`list-menu`">
         <router-link
@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div :class="`left-menu`">
+    <div v-if="!isMobile()" :class="`left-menu`">
       <div v-if="!isConnected">
         <BaseButton :text="`CONNECT WALLET`" @click="connectWallet" />
       </div>
@@ -80,6 +80,9 @@ export default {
     },
   },
   methods: {
+    isMobile() {
+      return screen.width <= 760 ? true : false;
+    },
     async callAction(iAddress) {
       const { api, accounts, isExtensionInstalled } = await UseCennznet("app_name", {
         network: "nikau",

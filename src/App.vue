@@ -1,6 +1,6 @@
 <template>
   <NavigationBar v-if="!isMobile()" @showAlert="alertShow($event)" />
-  <NavigationBarMobile v-if="isMobile()" />
+  <NotConnected v-if="isMobile()" :text="`Oops Trapo currently only available on chorme desktop only`" />
   <Alert
     v-if="showAlert"
     :variant="variantAlert"
@@ -10,14 +10,14 @@
 </template>
 <script >
 import NavigationBar from "@/components/fragments/Navbar/NavigationBar.vue";
-import NavigationBarMobile from "@/components/fragments/Navbar/NavbarMenuMobile.vue";
 import Alert from "@/components/elements/Alert/Alert.vue";
+import NotConnected from "@/components/fragments/Card/NotConnected/NotConnected.vue"
 export default {
   name: "App",
   components: {
     NavigationBar,
-    NavigationBarMobile,
     Alert,
+    NotConnected
   },
   data: function () {
     return {
